@@ -140,6 +140,8 @@ func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI
 	if !ok {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "SafeQuoInt failed")
 	}
+	logger := logger(ctx)
+	logger.Info("maintenance wallet", nxqconfig.MaintenanceWallet)
 
 	//maintenanceWallet, addrerr := sdk.AccAddressFromBech32("nxq1c9sumtfpgkvwfs6mxm09p5a92ps2jej8gmu73t")
 	maintenanceWallet, addrerr := sdk.AccAddressFromBech32(nxqconfig.MaintenanceWallet)
