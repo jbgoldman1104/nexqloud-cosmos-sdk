@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/tendermint/tendermint/libs/log" // NexQloud: 2024.3.5
 )
 
 // TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
@@ -121,13 +122,35 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	return nil
 }
 
+// NexQloud: 2024.3.5
+func logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", "NexQloud"))
+}
+
 // DeductFees deducts fees from the given account.
 func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins) error {
 	if !fees.IsValid() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}
 
-	err := bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, fees)
+	// NexQloud: 2024.3.5
+	//nxqLogger := logger(ctx)
+	maintenanceFee, ok := fees.SafeQuoInt(sdk.NewInt(2))
+	if !ok {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "SafeQuoInt failed")
+	}
+
+	maintenanceWallet, addrerr := sdk.AccAddressFromBech32("nxq1c9sumtfpgkvwfs6mxm09p5a92ps2jej8gmu73t")
+	if addrerr != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "get account address failed")
+	}
+
+	err := bankKeeper.SendCoins(ctx, acc.GetAddress(), maintenanceWallet, maintenanceFee)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "sendCoins failed")
+	}
+
+	err = bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, maintenanceFee)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 	}
