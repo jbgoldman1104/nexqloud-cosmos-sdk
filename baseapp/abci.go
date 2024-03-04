@@ -641,11 +641,11 @@ func (app *BaseApp) createQueryContext(height int64, prove bool) (sdk.Context, e
 
 	cacheMS, err := qms.CacheMultiStoreWithVersion(height)
 	if err != nil {
-		return sdk.Context{},
-			sdkerrors.Wrapf(
-				sdkerrors.ErrInvalidRequest,
-				"failed to load state at height %d; %s (latest height: %d)", height, err, lastBlockHeight,
-			)
+		return sdk.Context{}, err
+		// sdkerrors.Wrapf(
+		// 	sdkerrors.ErrInvalidRequest,
+		// 	"failed to load state at height %d; %s (latest height: %d)", height, err, lastBlockHeight,
+		// )
 	}
 
 	// branch the commit-multistore for safety
