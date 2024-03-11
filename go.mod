@@ -33,6 +33,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3
 	github.com/improbable-eng/grpc-web v0.15.0
+	github.com/jbgoldman1104/nxqconfig v0.0.0
 	github.com/jhump/protoreflect v1.15.1
 	github.com/magiconair/properties v1.8.6
 	github.com/manifoldco/promptui v0.9.0
