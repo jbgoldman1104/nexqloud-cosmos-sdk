@@ -128,25 +128,32 @@ func Convert2EthAddress(address string, bech32Prefix string) (string, error) {
 	return ethAddress, nil
 }
 
-func getNFTBalance(address string) (int, error) {
+func getBalances(address string) (int64, int64, error) {
 	client, err := ethclient.Dial(rpcURL)
+
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidRequest.Wrapf("RPC is not valid")
+		return 0, 0, sdkerrors.ErrInvalidRequest.Wrapf("RPC is not valid")
 	}
+
 	ethAddress, err := Convert2EthAddress(address, "nxq")
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+		return 0, 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	walletAddress := common.HexToAddress((ethAddress))
+	tokenBalance, err := client.BalanceAt(context.Background(), walletAddress, nil)
+	if err != nil {
+
+	}
+
 	contractAddress := common.HexToAddress((nxqconfig.ContractAddress))
 	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidRequest.Wrapf("invalid abi: %s", err)
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("invalid abi: %s", err)
 	}
 	data, err := parsedABI.Pack("balanceOf", walletAddress)
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to pack data for balanceOf: %s", err)
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to pack data for balanceOf: %s", err)
 	}
 	callMsg := ethereum.CallMsg{
 		To:   &contractAddress,
@@ -154,16 +161,20 @@ func getNFTBalance(address string) (int, error) {
 	}
 	result, err := client.CallContract(context.Background(), callMsg, nil)
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to call contract: %s", err)
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to call contract: %s", err)
+	}
+
+	if len(result) == 0 {
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidAddress.Wrapf("Invalid address: %s", err)
 	}
 
 	results, err := parsedABI.Unpack("balanceOf", result)
 	if err != nil {
-		return 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to unpack result: %s", err)
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to unpack result: %s", err)
 	}
 
-	balance := int(results[0].(*big.Int).Int64())
-	return balance, nil
+	nftBalance := results[0].(*big.Int)
+	return tokenBalance.Int64(), nftBalance.Int64(), nil
 }
 
 // ValidateBasic implements the sdk.Msg interface.
@@ -181,13 +192,17 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "validator address is invalid")
 	}
 
-	nftBalance, err := getNFTBalance(msg.DelegatorAddress)
+	tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
 	if err != nil {
 		return err
 	}
 
 	if nftBalance < nxqconfig.MinValidatorNFTBalance {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient NFT balance")
+	}
+
+	if tokenBalance < nxqconfig.MinValidatorToken {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient Token balance")
 	}
 
 	if msg.Pubkey == nil {
