@@ -135,25 +135,25 @@ func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI
 
 	// NexQloud: 2024.3.5
 	//nxqLogger := logger(ctx)
-	maintenanceFee, ok := fees.SafeQuoInt(sdk.NewInt(2))
-	if !ok {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "SafeQuoInt failed")
-	}
+	// maintenanceFee, ok := fees.SafeQuoInt(sdk.NewInt(2))
+	// if !ok {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "SafeQuoInt failed")
+	// }
 	// logger := logger(ctx)
 	// logger.Info("maintenance wallet", nxqconfig.MaintenanceWallet)
 
-	maintenanceWallet, addrerr := sdk.AccAddressFromBech32("nxq1c9sumtfpgkvwfs6mxm09p5a92ps2jej8gmu73t")
-	// maintenanceWallet, addrerr := sdk.AccAddressFromBech32(nxqconfig.MaintenanceWallet)
-	if addrerr != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "get account address failed")
-	}
+	// maintenanceWallet, addrerr := sdk.AccAddressFromBech32("nxq1c9sumtfpgkvwfs6mxm09p5a92ps2jej8gmu73t")
+	// // maintenanceWallet, addrerr := sdk.AccAddressFromBech32(nxqconfig.MaintenanceWallet)
+	// if addrerr != nil {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "get account address failed")
+	// }
 
-	err := bankKeeper.SendCoins(ctx, acc.GetAddress(), maintenanceWallet, maintenanceFee)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "sendCoins failed")
-	}
+	// err := bankKeeper.SendCoins(ctx, acc.GetAddress(), maintenanceWallet, maintenanceFee)
+	// if err != nil {
+	// 	return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "sendCoins failed")
+	// }
 
-	err = bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, maintenanceFee)
+	err := bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, fees)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 	}
