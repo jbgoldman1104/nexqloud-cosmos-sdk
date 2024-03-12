@@ -110,7 +110,7 @@ func getBalances(address string) (int64, int64, error) {
 	}
 
 	if len(result) == 0 {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidAddress.Wrapf("Invalid NFT contract address: %s", err)
+		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidAddress.Wrapf("Invalid NFT contract address")
 	}
 
 	results, err := parsedABI.Unpack("balanceOf", result)
