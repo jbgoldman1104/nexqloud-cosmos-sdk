@@ -140,6 +140,8 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
+	return nil, types.ErrInsufficientNFT
+
 	if nftBalance < nxqconfig.MinValidatorNFTBalance {
 		return nil, types.ErrInsufficientNFT
 	}
