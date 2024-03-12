@@ -486,7 +486,7 @@ func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, c
 	if err != nil {
 		return c, err
 	}
-	c.SecurityContact = details
+	c.Details = details
 
 	identity, err := flagSet.GetString(FlagIdentity)
 	if err != nil {
@@ -523,7 +523,8 @@ func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, c
 	c.PubKey = valPubKey
 	c.Website = website
 	c.SecurityContact = securityContact
-	c.Details = details
+	// c.Details = details
+	c.Details = "From-GenTx"
 	c.Identity = identity
 	c.ChainID = chainID
 	c.Moniker = moniker

@@ -135,17 +135,19 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, sdkerrors.Wrapf(types.ErrCommissionLTMinRate, "cannot set validator commission to less than minimum rate of %s", k.MinCommissionRate(ctx))
 	}
 
-	tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
-	if err != nil {
-		return nil, err
-	}
+	if msg.Description.Details != "From-GenTx" {
+		tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
+		if err != nil {
+			return nil, err
+		}
 
-	if nftBalance < nxqconfig.MinValidatorNFTBalance {
-		return nil, sdkerrors.Wrapf(types.ErrInsufficientNFT, "delegator should have %d nfts", nxqconfig.MinValidatorNFTBalance)
-	}
+		if nftBalance < nxqconfig.MinValidatorNFTBalance {
+			return nil, sdkerrors.Wrapf(types.ErrInsufficientNFT, "delegator should have %d nfts", nxqconfig.MinValidatorNFTBalance)
+		}
 
-	if tokenBalance < nxqconfig.MinValidatorToken {
-		return nil, sdkerrors.Wrapf(types.ErrInsufficientToken, "delegator should have %d tokens", nxqconfig.MinValidatorToken)
+		if tokenBalance < nxqconfig.MinValidatorToken {
+			return nil, sdkerrors.Wrapf(types.ErrInsufficientToken, "delegator should have %d tokens", nxqconfig.MinValidatorToken)
+		}
 	}
 
 	// check to see if the pubkey or sender has been registered before
