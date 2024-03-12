@@ -18,30 +18,30 @@ const (
 	TypeMsgBeginRedelegate           = "begin_redelegate"
 )
 
-const (
-	rpcURL      = "http://127.0.0.1:8545"
-	contractABI = `[
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-  ]`
-)
+// const (
+// 	rpcURL      = "http://127.0.0.1:8545"
+// 	contractABI = `[
+//     {
+//       "inputs": [
+//         {
+//           "internalType": "address",
+//           "name": "owner",
+//           "type": "address"
+//         }
+//       ],
+//       "name": "balanceOf",
+//       "outputs": [
+//         {
+//           "internalType": "uint256",
+//           "name": "",
+//           "type": "uint256"
+//         }
+//       ],
+//       "stateMutability": "view",
+//       "type": "function"
+//     },
+//   ]`
+// )
 
 var (
 	_ sdk.Msg                            = &MsgCreateValidator{}

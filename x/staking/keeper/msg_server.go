@@ -47,7 +47,7 @@ const (
       ],
       "stateMutability": "view",
       "type": "function"
-    },
+    }
   ]`
 )
 
