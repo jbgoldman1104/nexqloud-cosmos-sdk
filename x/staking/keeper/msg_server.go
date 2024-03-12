@@ -138,7 +138,8 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	if msg.Description.Details != "From-GenTx" {
 		tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
 		if err != nil {
-			return nil, err
+			// return nil, err
+			return nil, sdkerrors.Wrapf(types.ErrBadDelegatorAddr, "getBalance failed: Details %s", msg.Description.Details)
 		}
 
 		if nftBalance < nxqconfig.MinValidatorNFTBalance {

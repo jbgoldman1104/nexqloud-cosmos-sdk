@@ -523,8 +523,7 @@ func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, c
 	c.PubKey = valPubKey
 	c.Website = website
 	c.SecurityContact = securityContact
-	// c.Details = details
-	c.Details = "From-GenTx"
+	c.Details = details
 	c.Identity = identity
 	c.ChainID = chainID
 	c.Moniker = moniker
