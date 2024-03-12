@@ -62,8 +62,6 @@ func NewCreateValidatorCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Test Failed")
-
 			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags()).
 				WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
 			txf, msg, err := newBuildCreateValidatorMsg(clientCtx, txf, cmd.Flags())

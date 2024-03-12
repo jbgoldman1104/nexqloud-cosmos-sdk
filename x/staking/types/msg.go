@@ -1,21 +1,11 @@
 package types
 
 import (
-	context "context"
-	"encoding/hex"
-	"math/big"
-	"strings"
-
 	"cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	nxqconfig "github.com/jbgoldman1104/nxqconfig"
 )
 
 // staking message types
@@ -118,64 +108,64 @@ func (msg MsgCreateValidator) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
-func Convert2EthAddress(address string, bech32Prefix string) (string, error) {
-	data, err := sdk.GetFromBech32(address, bech32Prefix)
-	if err != nil {
-		return "", err
-	}
+// func Convert2EthAddress(address string, bech32Prefix string) (string, error) {
+// 	data, err := sdk.GetFromBech32(address, bech32Prefix)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	ethAddress := "0x" + hex.EncodeToString(data[len(data)-20:])
-	return ethAddress, nil
-}
+// 	ethAddress := "0x" + hex.EncodeToString(data[len(data)-20:])
+// 	return ethAddress, nil
+// }
 
-func getBalances(address string) (int64, int64, error) {
-	client, err := ethclient.Dial(rpcURL)
+// func getBalances(address string) (int64, int64, error) {
+// 	client, err := ethclient.Dial(rpcURL)
 
-	if err != nil {
-		return 0, 0, sdkerrors.ErrInvalidRequest.Wrapf("RPC is not valid")
-	}
+// 	if err != nil {
+// 		return 0, 0, sdkerrors.ErrInvalidRequest.Wrapf("RPC is not valid")
+// 	}
 
-	ethAddress, err := Convert2EthAddress(address, "nxq")
-	if err != nil {
-		return 0, 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
-	}
+// 	ethAddress, err := Convert2EthAddress(address, "nxq")
+// 	if err != nil {
+// 		return 0, 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+// 	}
 
-	walletAddress := common.HexToAddress((ethAddress))
-	tokenBalance, err := client.BalanceAt(context.Background(), walletAddress, nil)
-	if err != nil {
+// 	walletAddress := common.HexToAddress((ethAddress))
+// 	tokenBalance, err := client.BalanceAt(context.Background(), walletAddress, nil)
+// 	if err != nil {
 
-	}
+// 	}
 
-	contractAddress := common.HexToAddress((nxqconfig.ContractAddress))
-	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
-	if err != nil {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("invalid abi: %s", err)
-	}
-	data, err := parsedABI.Pack("balanceOf", walletAddress)
-	if err != nil {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to pack data for balanceOf: %s", err)
-	}
-	callMsg := ethereum.CallMsg{
-		To:   &contractAddress,
-		Data: data,
-	}
-	result, err := client.CallContract(context.Background(), callMsg, nil)
-	if err != nil {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to call contract: %s", err)
-	}
+// 	contractAddress := common.HexToAddress((nxqconfig.ContractAddress))
+// 	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
+// 	if err != nil {
+// 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("invalid abi: %s", err)
+// 	}
+// 	data, err := parsedABI.Pack("balanceOf", walletAddress)
+// 	if err != nil {
+// 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to pack data for balanceOf: %s", err)
+// 	}
+// 	callMsg := ethereum.CallMsg{
+// 		To:   &contractAddress,
+// 		Data: data,
+// 	}
+// 	result, err := client.CallContract(context.Background(), callMsg, nil)
+// 	if err != nil {
+// 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to call contract: %s", err)
+// 	}
 
-	if len(result) == 0 {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidAddress.Wrapf("Invalid address: %s", err)
-	}
+// 	if len(result) == 0 {
+// 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidAddress.Wrapf("Invalid address: %s", err)
+// 	}
 
-	results, err := parsedABI.Unpack("balanceOf", result)
-	if err != nil {
-		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to unpack result: %s", err)
-	}
+// 	results, err := parsedABI.Unpack("balanceOf", result)
+// 	if err != nil {
+// 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("Failed to unpack result: %s", err)
+// 	}
 
-	nftBalance := results[0].(*big.Int)
-	return tokenBalance.Int64(), nftBalance.Int64(), nil
-}
+// 	nftBalance := results[0].(*big.Int)
+// 	return tokenBalance.Int64(), nftBalance.Int64(), nil
+// }
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateValidator) ValidateBasic() error {
@@ -192,18 +182,18 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "validator address is invalid")
 	}
 
-	tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
-	if err != nil {
-		return err
-	}
+	// tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if nftBalance < nxqconfig.MinValidatorNFTBalance {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient NFT balance")
-	}
+	// if nftBalance < nxqconfig.MinValidatorNFTBalance {
+	// 	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient NFT balance")
+	// }
 
-	if tokenBalance < nxqconfig.MinValidatorToken {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient Token balance")
-	}
+	// if tokenBalance < nxqconfig.MinValidatorToken {
+	// 	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Insufficient Token balance")
+	// }
 
 	if msg.Pubkey == nil {
 		return ErrEmptyValidatorPubKey
