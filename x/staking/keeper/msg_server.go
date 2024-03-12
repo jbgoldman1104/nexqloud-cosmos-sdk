@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,10 +25,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	nxqconfig "github.com/jbgoldman1104/nxqconfig"
 )
 
 const (
+	configURL   = "https://raw.githubusercontent.com/jbgoldman1104/nxqconfig/main/nxqconfig.json"
 	rpcURL      = "http://127.0.0.1:8545"
 	contractABI = `[
     {
@@ -51,6 +53,13 @@ const (
   ]`
 )
 
+type NxqConfig struct {
+	MaintenanceWallet      string `json:"MaintenanceWallet"`
+	ContractAddress        string `json:"ContractAddress"`
+	MinValidatorToken      int64  `json:"MinValidatorToken"`
+	MinValidatorNFTBalance int64  `json:"MinValidatorNFTBalance"`
+}
+
 type msgServer struct {
 	Keeper
 }
@@ -73,7 +82,8 @@ func Convert2EthAddress(address string, bech32Prefix string) (string, error) {
 	return ethAddress, nil
 }
 
-func getBalances(address string) (int64, int64, error) {
+func getBalances(address string, contract string) (int64, int64, error) {
+
 	client, err := ethclient.Dial(rpcURL)
 
 	if err != nil {
@@ -91,7 +101,7 @@ func getBalances(address string) (int64, int64, error) {
 
 	}
 
-	contractAddress := common.HexToAddress((nxqconfig.ContractAddress))
+	contractAddress := common.HexToAddress((contract))
 	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
 	if err != nil {
 		return tokenBalance.Int64(), 0, sdkerrors.ErrInvalidRequest.Wrapf("invalid abi: %s", err)
@@ -126,6 +136,18 @@ func getBalances(address string) (int64, int64, error) {
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	response, err := http.Get(configURL)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("Configuration file is not found")
+	}
+	defer response.Body.Close()
+
+	var config NxqConfig
+	err = json.NewDecoder(response.Body).Decode(&config)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("Configuration file is not valid")
+	}
+
 	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -136,17 +158,17 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	if msg.Description.Details != "From-GenTx" {
-		tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress)
+		tokenBalance, nftBalance, err := getBalances(msg.DelegatorAddress, config.ContractAddress)
 		if err != nil {
 			return nil, err
 		}
 
-		if nftBalance < nxqconfig.MinValidatorNFTBalance {
-			return nil, sdkerrors.Wrapf(types.ErrInsufficientNFT, "delegator should have %d nfts", nxqconfig.MinValidatorNFTBalance)
+		if nftBalance < config.MinValidatorNFTBalance {
+			return nil, sdkerrors.Wrapf(types.ErrInsufficientNFT, "delegator should have %d nfts", config.MinValidatorNFTBalance)
 		}
 
-		if tokenBalance < nxqconfig.MinValidatorToken {
-			return nil, sdkerrors.Wrapf(types.ErrInsufficientToken, "delegator should have %d tokens", nxqconfig.MinValidatorToken)
+		if tokenBalance < config.MinValidatorToken {
+			return nil, sdkerrors.Wrapf(types.ErrInsufficientToken, "delegator should have %d tokens", config.MinValidatorToken)
 		}
 	}
 
