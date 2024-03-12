@@ -82,7 +82,7 @@ func getBalances(address string) (int64, int64, error) {
 
 	ethAddress, err := Convert2EthAddress(address, "nxq")
 	if err != nil {
-		return 0, 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+		return 0, 0, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s, ethAddress: %s", address, ethAddress)
 	}
 
 	walletAddress := common.HexToAddress((ethAddress))
