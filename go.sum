@@ -599,8 +599,8 @@ github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mq
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
-github.com/jbgoldman1104/nexqloud-cometbft v0.0.1 h1:P3kvMNH38KuJV62l22IEwzDvcf0ZIkjp4niZ5bZQ2Z4=
-github.com/jbgoldman1104/nexqloud-cometbft v0.0.1/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
+github.com/jbgoldman1104/nexqloud-cometbft v0.0.2 h1:wAxhiGrSirBlsLk6TXtbnyEBXbpYuHLASIAeLThSLHM=
+github.com/jbgoldman1104/nexqloud-cometbft v0.0.2/go.mod h1:L9shMfbkZ8B+7JlwANEr+NZbBcn+hBpwdbeYvA5rLCw=
 github.com/jbgoldman1104/nxqconfig v0.0.2 h1:PoDgob1TbKcGhixkMBVyQri2T75zALMGCbR+jcN/KCU=
 github.com/jbgoldman1104/nxqconfig v0.0.2/go.mod h1:mHO4r1nPKwDUUEV3FbqxvyPIz92ZpyHpp0/dFjRyuEk=
 github.com/jedisct1/go-minisign v0.0.0-20190909160543-45766022959e/go.mod h1:G1CVv03EnqU1wYL2dFwXxW2An0az9JTl/ZsqXQeBlkU=
